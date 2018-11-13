@@ -6,6 +6,7 @@
 #define _COLOR_HPP_
 
 #include <algorithm>
+#include <iostream>
 
 /**
    Représente une couleur avec un codage RGB. Ce codage utilise 3
@@ -67,7 +68,13 @@ struct Color {
        TODO: Convertit la couleur donnée avec le modèle HSV (TSV en
        français) en une couleur RGB.
     */
-    void setHSV( int h, float s, float v )
-    {}
+    void setHSV( int h, float s, float v ) {}
+
+    friend std::istream & operator>>(std::istream & input, Color & c){
+        Byte r, g, b;
+        input >> r >> g >> b;
+        c = Color(r, g, b);
+        return input;
+    }
 };
 #endif //_COLOR_HPP_
