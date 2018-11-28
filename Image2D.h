@@ -23,6 +23,8 @@ public:
     typedef TValue Value;     // le type pour la valeur des pixels
     typedef std::vector<Value> Container; // le type pour stocker les valeurs des pixels de l'image.
 
+    /* ITERATOR */
+
     /// Un itérateur (non-constant) simple sur l'image.
     struct Iterator : public Container::iterator {
         Iterator(Self &image, int x, int y)
@@ -37,6 +39,10 @@ public:
 
     /// @return un itérateur pointant sur le pixel (x,y).
     Iterator start(int x, int y) { return Iterator(*this, x, y); }
+
+    /* ------------------------------ */
+
+    /* CONST ITERATOR */
 
     /// Un itérateur constant simple sur l'image.
     struct ConstIterator : public Container::const_iterator {
@@ -62,6 +68,9 @@ public:
     /// @return un itérateur constant pointant sur le pixel (x,y).
     ConstIterator cstart(int x, int y) const { return ConstIterator(*this, x, y); }
 
+    /* ------------------------------ */
+
+    /* CONST GENERIC ITERATOR */
 
     template <typename TAccessor>
     struct GenericConstIterator : public Container::const_iterator {
@@ -86,6 +95,34 @@ public:
     GenericConstIterator< Accessor > start( int x = 0, int y = 0 ) const
     { return GenericConstIterator< Accessor >( *this, x, y ); }
 
+    /* ------------------------------ */
+
+    /* GENERIC ITERATOR */
+
+    template <typename TAccessor>
+    struct GenericIterator : public Container::iterator {
+        typedef TAccessor Accessor;
+        typedef typename Accessor::Argument  ImageValue; // Color ou unsigned char
+        typedef typename Accessor::Value     Value;      // unsigned char (pour ColorGreenAccessor)
+        typedef typename Accessor::Reference Reference;  // ColorGreenReference (pour ColorGreenAccessor)
+        GenericIterator( Image2D<ImageValue>& image, int x, int y )
+                : Container::iterator(image.m_data.begin() + image.index(x, y)){}
+        // Accès en écriture (lvalue)
+        Reference operator*()
+        { return Accessor::access( Container::iterator::operator*() ); }
+    };
+
+    template <typename Accessor>
+    GenericIterator< Accessor > begin() { return start<Accessor>(0, 0); }
+
+    template <typename Accessor>
+    GenericIterator< Accessor > end() { return start<Accessor>(0, h()); }
+
+    template <typename Accessor>
+    GenericIterator< Accessor > start( int x = 0, int y = 0 )
+    { return GenericIterator< Accessor >( *this, x, y ); }
+
+    /* ------------------------------ */
 
     /// Constructeur par défaut
     Image2D() {

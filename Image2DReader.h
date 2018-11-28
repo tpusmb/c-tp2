@@ -55,7 +55,6 @@ public:
         std::istringstream istr2(line);
         int pix_val = 0;
         istr2 >> pix_val;
-        std::cout << pix_val << std::endl;
         // std::getline(input, line);
         Image::Iterator m_data_iterator = img.begin();
         input >> std::noskipws;
@@ -106,7 +105,6 @@ public:
         std::istringstream istr2(line);
         int pix_val = 0;
         istr2 >> pix_val;
-        std::cout << pix_val << std::endl;
         // std::getline(input, line);
         Iterator m_data_iterator = img.begin();
         input >> std::noskipws;

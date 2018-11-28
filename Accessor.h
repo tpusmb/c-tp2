@@ -113,4 +113,52 @@ struct ColorBlueAccessor {
     static Reference access( Argument & arg )
     { return ColorBlueReference( arg ); }
 };
+
+/// Accesseur a la Teint du pixel de couleur
+struct ColorValueAccessor {
+    typedef unsigned char Value;
+    typedef Color Argument;
+    struct ColorValueReference {
+        Argument & arg;
+        ColorValueReference( Argument & someArg ) : arg( someArg ) {}
+        // Cette fonction sera appelée lors d'un `*it = ...`.
+        // S'occupe de changer la valeur de la couleur arg
+        // en fonction de la valeur donnée val.
+        // Il faut utiliser arg.getHSV et arg.setHSV.
+        ColorValueReference& operator=( Value val )
+        {
+            int h;
+            float s, v;
+            // Obtention de la teinte
+            arg.getHSV(h, s, v);
+            // Mise a jour de la nouvelle teinte
+            arg.setHSV(val, s, v);
+            return *this;
+        }
+        // S'occupe de retourner la valeur de la couleur arg (sans la changer).
+        // Un simple appel à arg.getHSV suffira.
+        operator Value() const
+        {
+            int h;
+            float s, v;
+            arg.getHSV(h, s, v);
+            return static_cast<Value>(h);
+        }
+    };
+    typedef ColorValueReference Reference;
+    // Il s'agit d'un simple accès en lecture à la valeur de la couleur arg.
+    // Un simple appel à arg.getHSV suffira.
+    static Value access( const Argument & arg )
+    {
+        int h;
+        float s, v;
+        arg.getHSV(h, s, v);
+        return static_cast<Value>(h);
+    }
+    // Il suffit de créer et retourner un objet de type ColorValueReference référençant arg.
+    static Reference access( Argument & arg )
+    {
+        return ColorValueReference( arg );
+    }
+};
 #endif // _ACCESSOR_HPP_

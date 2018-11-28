@@ -5,6 +5,8 @@
 #include "Image2DReader.h"
 #include "Image2DWriter.h"
 #include "Accessor.h"
+#include "Histogramme.h"
+
 int main( int argc, char** argv )
 {
     typedef Image2D<Color> ColorImage2D;
@@ -12,7 +14,7 @@ int main( int argc, char** argv )
     typedef ColorImage2D::Iterator ColorIterator;
     if ( argc < 3 )
     {
-        std::cerr << "Usage: save-green-channel <input.ppm> <output.pgm>" << std::endl;
+        std::cerr << "Usage: histogramme <input.ppm> <output.pgm>" << std::endl;
         return 0;
     }
     ColorImage2D img;
@@ -24,27 +26,36 @@ int main( int argc, char** argv )
         return 1;
     }
     input.close();
+
+    Histogramme H;
+    H.init(img.begin<ColorValueAccessor>(), img.end<ColorValueAccessor>());
+
+
     typedef Image2D<unsigned char> GrayLevelImage2D;
     typedef Image2DWriter<unsigned char> GrayLevelImage2DWriter;
     typedef GrayLevelImage2D::Iterator GrayLevelIterator;
-    GrayLevelImage2D img2( img.w(), img.h() );
+    // Make histogram image 256 because we scall the histogramme value between 0 and 255
+    // 255 * 2 because we need to put tow histogram the +25 is to leave space between the histograms
+    GrayLevelImage2D img2( (360 * 2) + 25, 255);
 
-    //-----------------------------------------------------------------------------
-    // vvvvvvvvv Toute la transformation couleur -> canal vert est ici vvvvvvvvvvvv
-    //
-    // Servira à parcourir la composante verte de l'image couleur.
-    typedef ColorImage2D::GenericConstIterator< ColorGreenAccessor > ColorGreenConstIterator;
-    // Notez comment on appelle la méthode \b générique `begin` de `Image2D`.
-    ColorGreenConstIterator itGreen = img.begin< ColorGreenAccessor >();
-    // On écrit la composante verte dans l'image en niveaux de gris.
-    for ( GrayLevelIterator it = img2.begin(), itE = img2.end();
-          it != itE; ++it )
-    {
-        *it = *itGreen;
-        ++itGreen;
-        // NB: si on veut faire *itGreen++, il faut redéfinir GenericConstIterator<T>::operator++(int).
+    int x = 0;
+    // histogramme
+    for (auto & c:H.hist()){
+        for(int y = 255; y >= 255 - c; y--){
+            *img2.start(x, y) = 255;
+        }
+        x++;
     }
-    //-----------------------------------------------------------------------------
+
+    x+=25;
+
+    for (auto & c:H.hist_cumul()){
+        int end_value = static_cast<int>(round(c * 255.0));
+        for(int y = 255; y >= end_value; y--){
+            *img2.start(x, y) = 255;
+        }
+        x++;
+    }
     std::ofstream output( argv[2] ); // récupère le 2eme argument.
     bool ok2 = GrayLevelImage2DWriter::write( img2, output, false );
     if ( !ok2 )

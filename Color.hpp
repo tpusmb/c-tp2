@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 /**
    Représente une couleur avec un codage RGB. Ce codage utilise 3
@@ -65,11 +66,51 @@ struct Color {
         v = max();
     }
     /**
-       TODO: Convertit la couleur donnée avec le modèle HSV (TSV en
-       français) en une couleur RGB.
+       Convertit la couleur donnée avec le modèle HSV (TSV en français) en une couleur RGB.
     */
-    void setHSV( int h, float s, float v ) {}
+    void setHSV( int h, float s, float v ) {
 
+        double c = h * s;
+        double h_prime = h / 60;
+        double x = c * (1.0 - fabs((fmod(h_prime, 2.0) - 1.0)));
+        double m = v - c;
+        double r_prime, g_prime, b_prime;
+        if (0 <= h_prime and h_prime < 60){
+            r_prime = c;
+            g_prime = x;
+            b_prime = 0;
+        }
+        else if (60 <= h_prime and h_prime < 120){
+            r_prime = x;
+            g_prime = c;
+            b_prime = 0;
+        }
+        else if (120 <= h_prime and h_prime < 180){
+            r_prime = 0;
+            g_prime = c;
+            b_prime = x;
+        }
+        else if (180 <= h_prime and h_prime < 240){
+            r_prime = 0;
+            g_prime = x;
+            b_prime = c;
+        }
+        else if (240 <= h_prime and h_prime < 300){
+            r_prime = x;
+            g_prime = 0;
+            b_prime = c;
+        } else{
+            r_prime = c;
+            g_prime = 0;
+            b_prime = x;
+        }
+        // Normalisation des piwel entre 0 et 255
+        red = static_cast<Byte>((r_prime + m) * 255.0);
+        green = static_cast<Byte>((g_prime + m) * 255.0);
+        blue = static_cast<Byte>((b_prime + m) * 255.0);
+    }
+
+    /// Operateur de flux entrée pour ajouter les pixel de couleur
     friend std::istream & operator>>(std::istream & input, Color & c){
         Byte r, g, b;
         input >> r >> g >> b;
