@@ -1,0 +1,31 @@
+TP2 Généricité
+BLANC Swan & LE BRAS Clément
+
+
+Compiler le cmake
+    cmake "."
+Puis une fois le makeFile générer taper :
+    make
+
+Le make va générer 4 exécutables :
+    - histogramme: génère l'histogramme de l'image
+    - egaliseur_couleur: egalise l'histogramme de l'image
+    - invert_red_blue: inverse le channel rouge est blue de l'image
+    - save_green_channel: Sauvgarde que le channel vert de l'image
+    - testColorimage2D: crée une image avec une couleur dégrader
+    - tv_effect: Ajoute un effet vielle tv a l'image
+    - testGrayLevelImage2D: Affiche une matrice qui simulle une image
+    - testImportColorImage: Import une image puis la écrit dans un nouveau fichier
+
+Problème de compilation :
+    Il se peut que se type de message arrive :
+    CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
+      CMake 3.8 or higher is required.  You are running version 3.5.1
+
+    Pour le corriger il faut modifier la fichier CMakeLists.txt et changer la ligne :
+    cmake_minimum_required(VERSION 3.8)
+    en
+    cmake_minimum_required(VERSION 3.5)
+
+
+
